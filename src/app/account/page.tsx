@@ -5,14 +5,14 @@ import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import { motion } from 'framer-motion';
-import { useNoteStore } from '@/store/noteStore';
+import { useNotes } from '@/store/noteStore';
 import { User, Mail, FileText, LogOut } from 'lucide-react';
 import Breadcrumb from '@/components/Breadcrumb';
 
 export default function AccountPage() {
     const { data: session, status } = useSession();
     const router = useRouter();
-    const { notes } = useNoteStore();
+    const { notes } = useNotes();
     const [userStats, setUserStats] = useState({
         totalNotes: 0,
         joinDate: '',

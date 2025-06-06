@@ -4,9 +4,9 @@ import React, { useEffect, useState, Suspense, lazy, useMemo } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { useNoteStore } from '@/store/noteStore';
 import { Note } from '@/types';
 import { Plus } from 'lucide-react';
+import { useNotes } from '@/store/noteStore';
 
 const Header = lazy(() => import('@/components/Header'));
 const NoteCard = lazy(() => import('@/components/NoteCard'));
@@ -18,8 +18,8 @@ const MemoizedNoteCard = React.memo(NoteCard);
 export default function HomePage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const { notes, loading, fetchNotes, createNote, updateNote, deleteNote } = useNoteStore();
-
+  const { notes, loading, createNote, updateNote, deleteNote, clearError } = useNotes();
+  
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
@@ -28,9 +28,9 @@ export default function HomePage() {
     if (status === 'unauthenticated') {
       router.push('/login');
     } else if (status === 'authenticated') {
-      fetchNotes();
+      clearError(); 
     }
-  }, [status, router, fetchNotes]);
+  }, [status, router, clearError]);
 
   const handleCreateNote = () => {
     setModalMode('create');
