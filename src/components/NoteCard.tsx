@@ -2,13 +2,14 @@
 
 import { Note } from '@/types';
 import { motion } from 'framer-motion';
+import React from 'react';
 
 interface NoteCardProps {
     note: Note;
     onClick: () => void;
 }
 
-export default function NoteCard({ note, onClick }: NoteCardProps) {
+const NoteCard = React.memo(function NoteCard({ note, onClick }: NoteCardProps) {
     const formatDate = (date: Date) => {
         return new Date(date).toLocaleDateString('en-US', {
             weekday: 'short',
@@ -57,4 +58,6 @@ export default function NoteCard({ note, onClick }: NoteCardProps) {
             </div>
         </motion.div>
     );
-}
+})
+
+export default NoteCard;

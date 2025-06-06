@@ -1,22 +1,25 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense, lazy, useMemo } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import Header from '@/components/Header';
-import NoteCard from '@/components/NoteCard';
-import NoteModal from '@/components/NoteModal';
 import { useNoteStore } from '@/store/noteStore';
 import { Note } from '@/types';
 import { Plus } from 'lucide-react';
-import Breadcrumb from '@/components/Breadcrumb';
+
+const Header = lazy(() => import('@/components/Header'));
+const NoteCard = lazy(() => import('@/components/NoteCard'));
+const NoteModal = lazy(() => import('@/components/NoteModal'));
+const Breadcrumb = lazy(() => import('@/components/Breadcrumb'));
+
+const MemoizedNoteCard = React.memo(NoteCard);
 
 export default function HomePage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const { notes, loading, fetchNotes, createNote, updateNote, deleteNote } = useNoteStore();
-  
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
@@ -69,14 +72,14 @@ export default function HomePage() {
     return 'User';
   };
 
+  const breadcrumbItems = useMemo(() => [
+    { label: 'Homepage', href: '/' },
+    { label: 'Your Notes', active: true }
+  ], []);
+
   if (status === 'loading') {
     return <div className="loading">Loading...</div>;
   }
-
-    const breadcrumbItems = [
-    { label: 'Homepage', href: '/' },
-    { label: 'Your Notes', active: true }
-  ];
 
   if (!session) {
     return null;
@@ -84,26 +87,30 @@ export default function HomePage() {
 
   return (
     <div className="app">
-      <Header />
-      
-      <main className="main-content">
-              <Breadcrumb items={breadcrumbItems} />
+      <Suspense fallback={<div>Loading Header...</div>}>
+        <Header />
+      </Suspense>
 
-        
+      <main className="main-content">
+        <Suspense fallback={<div>Loading Breadcrumb...</div>}>
+          <Breadcrumb items={breadcrumbItems} />
+        </Suspense>
+
         <h1 className="page-title">
           {getGreeting()} {getUserName()}!
         </h1>
-        
+
         {loading ? (
           <div className="loading">Loading notes...</div>
         ) : (
           <div className="notes-grid">
             {notes.map((note) => (
-              <NoteCard
-                key={note._id}
-                note={note}
-                onClick={() => handleEditNote(note)}
-              />
+              <Suspense key={note._id} fallback={<div>Loading Note...</div>}>
+                <MemoizedNoteCard
+                  note={note}
+                  onClick={() => handleEditNote(note)}
+                />
+              </Suspense>
             ))}
             {notes.length === 0 && (
               <motion.div
@@ -130,14 +137,16 @@ export default function HomePage() {
         </motion.button>
       </main>
 
-      <NoteModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSave={handleSaveNote}
-        onDelete={modalMode === 'edit' ? handleDeleteNote : undefined}
-        note={selectedNote}
-        mode={modalMode}
-      />
+      <Suspense fallback={<div>Loading Note Modal...</div>}>
+        <NoteModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onSave={handleSaveNote}
+          onDelete={modalMode === 'edit' ? handleDeleteNote : undefined}
+          note={selectedNote}
+          mode={modalMode}
+        />
+      </Suspense>
     </div>
   );
 }
