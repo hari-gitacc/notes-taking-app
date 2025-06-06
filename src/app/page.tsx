@@ -10,6 +10,7 @@ import NoteModal from '@/components/NoteModal';
 import { useNoteStore } from '@/store/noteStore';
 import { Note } from '@/types';
 import { Plus } from 'lucide-react';
+import Breadcrumb from '@/components/Breadcrumb';
 
 export default function HomePage() {
   const { data: session, status } = useSession();
@@ -72,6 +73,11 @@ export default function HomePage() {
     return <div className="loading">Loading...</div>;
   }
 
+    const breadcrumbItems = [
+    { label: 'Homepage', href: '/' },
+    { label: 'Your Notes', active: true }
+  ];
+
   if (!session) {
     return null;
   }
@@ -81,9 +87,8 @@ export default function HomePage() {
       <Header />
       
       <main className="main-content">
-        <div className="breadcrumb">
-          <span>Homepage</span> / <span>Your Notes</span>
-        </div>
+              <Breadcrumb items={breadcrumbItems} />
+
         
         <h1 className="page-title">
           {getGreeting()} {getUserName()}!

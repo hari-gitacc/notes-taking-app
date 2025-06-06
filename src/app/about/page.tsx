@@ -1,17 +1,21 @@
 'use client';
 
+import Breadcrumb from '@/components/Breadcrumb';
 import Header from '@/components/Header'
 import { motion } from 'framer-motion'
 
 export default function AboutPage() {
+    const breadcrumbItems = [
+  { label: 'Homepage', href: '/' },
+  { label: 'About', active: true }
+];
   return (
     <div className="app">
       <Header />
       
       <main className="main-content">
-        <div className="breadcrumb">
-          <span>Homepage</span> / <span>About</span>
-        </div>
+              <Breadcrumb items={breadcrumbItems} />
+
         
         <motion.div
           className="about-container"

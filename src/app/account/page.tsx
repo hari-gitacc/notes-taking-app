@@ -7,6 +7,7 @@ import Header from '@/components/Header';
 import { motion } from 'framer-motion';
 import { useNoteStore } from '@/store/noteStore';
 import { User, Mail, FileText, LogOut } from 'lucide-react';
+import Breadcrumb from '@/components/Breadcrumb';
 
 export default function AccountPage() {
   const { data: session, status } = useSession();
@@ -48,14 +49,17 @@ export default function AccountPage() {
     transition: { duration: 0.3 },
   };
 
+  const breadcrumbItems = [
+  { label: 'Homepage', href: '/' },
+  { label: 'Account', active: true }
+];
+
   return (
     <div className="app">
       <Header />
 
       <main className="main-content">
-        <div className="breadcrumb">
-          <span>Homepage</span> / <span>Account</span>
-        </div>
+        <Breadcrumb items={breadcrumbItems} />
 
         <motion.div className="account-container" {...minimalMotion}>
           <h1 className="page-title">My Account</h1>
