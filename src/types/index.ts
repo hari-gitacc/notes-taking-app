@@ -17,3 +17,11 @@ export interface NoteInput {
   title: string;
   content: string;
 }
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    id: string
+    createdAt?: string | null
+    username?: string | null
+  }
+}
