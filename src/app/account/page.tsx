@@ -5,15 +5,20 @@ import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import { motion } from 'framer-motion';
-import { useNotes } from '@/store/noteStore';
+import { useNotes,  } from '@/store/noteStore';
 import { User, Mail, FileText, LogOut } from 'lucide-react';
 import Breadcrumb from '@/components/Breadcrumb';
+
+interface UserStats {
+    totalNotes: number;
+    joinDate: string;
+}
 
 export default function AccountPage() {
     const { data: session, status } = useSession();
     const router = useRouter();
     const { notes } = useNotes();
-    const [userStats, setUserStats] = useState({
+    const [userStats, setUserStats] = useState<UserStats>({
         totalNotes: 0,
         joinDate: '',
     });
@@ -25,23 +30,36 @@ export default function AccountPage() {
     }, [status, router]);
 
     useEffect(() => {
-        if (notes.length > 0 && session?.user) {
+        if (notes.length > 0) {
             setUserStats({
                 totalNotes: notes.length,
-                joinDate: new Date(session.user.createdAt || Date.now()).toLocaleDateString('en-US', {
-                    month: 'long',
-                    year: 'numeric'
-                }),
+                joinDate: 'January 2025', // Default join date since createdAt is not available
             });
+        } else {
+            setUserStats(prev => ({
+                ...prev,
+                totalNotes: 0,
+                joinDate: 'January 2025',
+            }));
         }
-    }, [notes, session]);
+    }, [notes]);
 
     const handleSignOut = () => {
         signOut({ callbackUrl: '/login' });
     };
 
-    if (status === 'loading') return <div className="loading">Loading...</div>;
-    if (!session) return null;
+    if (status === 'loading') {
+        return (
+            <div className="app">
+                <Header />
+                <div className="loading">Loading...</div>
+            </div>
+        );
+    }
+
+    if (!session?.user) {
+        return null;
+    }
 
     const minimalMotion = {
         initial: { opacity: 0, y: 5 },
@@ -72,10 +90,10 @@ export default function AccountPage() {
                                     <User size={48} />
                                 </div>
                                 <div className="profile-info">
-                                    <h2>{session.user?.name || session.user?.username || 'User'}</h2>
+                                    <h2>{session.user.name || 'User'}</h2>
                                     <p className="user-email">
                                         <Mail size={16} />
-                                        {session.user?.email}
+                                        {session.user.email}
                                     </p>
                                     <p className="join-date">
                                         Member since {userStats.joinDate || 'Recently'}
